@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}App1 - Articles{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>✍️ إضافة مقال جديد (Insert into Database)</h2>
+    <form action="{% url 'app1:create_article' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_title">عنوان المقال:</label>
+            {{ form.title }}
+        </div>
+        <div class="form-group">
+            <label for="id_content">محتوى المقال:</label>
+            {{ form.content }}
+        </div>
+        <button type="submit" class="btn">💾 حفظ في قاعدة البيانات (Insert)</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>📚 المقالات المسجلة (Read from Database) - العدد: {{ articles|length }}</h2>
+
+    {% if articles %}
+        <ul class="item-list">
+            {% for article in articles %}
+                <li class="item-card">
+                    <div class="item-card-body">
+                        <div class="item-title">{{ article.title }}</div>
+                        <p style="color: #475569; margin: 0.5rem 0;">{{ article.content }}</p>
+                        <div class="item-meta">📅 أضيف بتاريخ: {{ article.created_at|date:"Y-m-d H:i" }} | ID: #{{ article.id }}</div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-left: 1rem;">
+                        <a href="{% url 'app1:edit_article' article.id %}" class="btn btn-secondary">تعديل ✏️</a>
+                        <form action="{% url 'app1:delete_article' article.id %}" method="post" onsubmit="return confirm('هل أنت متأكد من حذف هذا المقال؟');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">حذف 🗑️</button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="empty-state">
+            لا توجد مقالات مسجلة في قاعدة البيانات حالياً. جرب كتابة مقال وإضافته بالنموذج أعلاه!
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

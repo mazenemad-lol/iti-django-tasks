@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}App2 - Tasks{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>📝 إضافة مهمة جديدة (Insert into Database)</h2>
+    <form action="{% url 'app2:create_task' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_title">عنوان المهمة:</label>
+            {{ form.title }}
+        </div>
+        <button type="submit" class="btn">➕ إضافة المهمة (Insert)</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>📋 قائمة المهام (Read & Update & Delete) - العدد: {{ tasks|length }}</h2>
+
+    {% if tasks %}
+        <ul class="item-list">
+            {% for task in tasks %}
+                <li class="item-card" style="{% if task.is_completed %}background: #f1f5f9; opacity: 0.85;{% endif %}">
+                    <div class="item-card-body">
+                        <div class="item-title" style="{% if task.is_completed %}text-decoration: line-through; color: #64748b;{% endif %}">
+                            {% if task.is_completed %}✅{% else %}⏳{% endif %} {{ task.title }}
+                        </div>
+                        <div class="item-meta">
+                            الحالة: {% if task.is_completed %}<strong style="color: #059669;">مكتملة</strong>{% else %}<strong style="color: #d97706;">قيد التنفيذ</strong>{% endif %}
+                            | 📅 {{ task.created_at|date:"Y-m-d H:i" }} | ID: #{{ task.id }}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-left: 1rem;">
+                        <form action="{% url 'app2:toggle_task' task.id %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            {% if task.is_completed %}
+                                <button type="submit" class="btn btn-secondary">إلغاء الإكمال ↩️</button>
+                            {% else %}
+                                <button type="submit" class="btn btn-success">إنجاز ✔️</button>
+                            {% endif %}
+                        </form>
+                        <a href="{% url 'app2:edit_task' task.id %}" class="btn btn-secondary">تعديل ✏️</a>
+                        <form action="{% url 'app2:delete_task' task.id %}" method="post" onsubmit="return confirm('هل تريد حذف هذه المهمة؟');" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">حذف 🗑️</button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="empty-state">
+            لا توجد أي مهام مسجلة حالياً في قاعدة البيانات. أضف مهمتك الأولى بالأعلى!
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

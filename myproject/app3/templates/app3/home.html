@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}App3 - Contacts{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>👤 إضافة جهة اتصال جديدة (Insert into Database)</h2>
+    <form action="{% url 'app3:create_contact' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_name">الاسم:</label>
+            {{ form.name }}
+        </div>
+        <div class="form-group">
+            <label for="id_email">البريد الإلكتروني:</label>
+            {{ form.email }}
+        </div>
+        <div class="form-group">
+            <label for="id_phone">رقم الهاتف:</label>
+            {{ form.phone }}
+        </div>
+        <div class="form-group">
+            <label for="id_notes">ملاحظات إضافية:</label>
+            {{ form.notes }}
+        </div>
+        <button type="submit" class="btn">💾 حفظ جهة الاتصال (Insert)</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>📇 دليل جهات الاتصال (Read & Update & Delete) - العدد: {{ contacts|length }}</h2>
+
+    {% if contacts %}
+        <ul class="item-list">
+            {% for contact in contacts %}
+                <li class="item-card">
+                    <div class="item-card-body">
+                        <div class="item-title">{{ contact.name }}</div>
+                        <div style="color: #334155; margin: 0.35rem 0; font-size: 0.95rem;">
+                            ✉️ {{ contact.email }}
+                            {% if contact.phone %} | 📞 {{ contact.phone }}{% endif %}
+                        </div>
+                        {% if contact.notes %}
+                            <p style="color: #64748b; font-size: 0.85rem; margin-top: 0.25rem;">📝 {{ contact.notes }}</p>
+                        {% endif %}
+                        <div class="item-meta">📅 تاريخ الإضافة: {{ contact.created_at|date:"Y-m-d H:i" }} | ID: #{{ contact.id }}</div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-left: 1rem;">
+                        <a href="{% url 'app3:edit_contact' contact.id %}" class="btn btn-secondary">تعديل ✏️</a>
+                        <form action="{% url 'app3:delete_contact' contact.id %}" method="post" onsubmit="return confirm('هل تريد حذف جهة الاتصال هذه؟');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">حذف 🗑️</button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="empty-state">
+            لا توجد جهات اتصال مسجلة في قاعدة البيانات حتى الآن. أضف جهة اتصال جديدة بالأعلى!
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
